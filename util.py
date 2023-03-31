@@ -46,8 +46,8 @@ def create_signature(event_id, private_key):
     sig = sig.hex()
     return sig
 
-def broadcast_event(event):
-    ws = create_connection("wss://relay.snort.social")
+def broadcast_event(event, relay_uri):
+    ws = create_connection(f"{relay_uri}")
 
     ws.send(
         json.dumps(
@@ -62,18 +62,18 @@ def broadcast_event(event):
     print("Received '%s'" % result)
     ws.close()
 
-def publish_short_note(keypair, content, tags):
+def publish_short_note(keypair, relay_uri, content, tags):
     ts = create_timestamp()
     kind = get_event_kind("short_note")
     event_id = create_event_id(keypair["pub_key"], ts, kind, tags, content)
     sig = create_signature(event_id, keypair["private_key"])
     event = {"id":event_id,"pubkey":keypair["pub_key"],"created_at":ts,"kind":kind,"tags": tags,"content":content,"sig":sig}
-    broadcast_event(event)
+    broadcast_event(event, relay_uri)
 
-def publish_longform_note(keypair, content, tags):
+def publish_longform_note(keypair, relay_uri, content, tags):
     ts = create_timestamp()
     kind = get_event_kind("long_form")
     event_id = create_event_id(keypair["pub_key"], ts, kind, tags, content)
     sig = create_signature(event_id, keypair["private_key"])
     event = {"id":event_id,"pubkey":keypair["pub_key"],"created_at":ts,"kind":kind,"tags": tags,"content":content,"sig":sig}
-    broadcast_event(event)
+    broadcast_event(event, relay_uri)
